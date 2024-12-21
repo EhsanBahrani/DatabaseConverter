@@ -112,8 +112,10 @@ namespace DBConverter
                 // Insert each row into the table
                 foreach (DataRow row in table.Rows)
                 {
-                    string values = "(" + string.Join(", ", row.ItemArray) + ")";
-                    command.CommandText = $"insert into {table.TableName} {names} values {values}";
+                    string values = "(" + string.Join(", ", row.ItemArray.Select(item =>
+                        string.IsNullOrEmpty(item.ToString()) ? "NULL" :
+                            (item is string ? $"'{item.ToString().Replace("'", "''")}'" : item.ToString()))) + ")";
+                    command.CommandText = $"insert into {table.TableName} {names} values {values};";
                     command.ExecuteNonQuery();
                 }
             }
